@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Expense</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #222;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #555;
+        }
+
+        .errors {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .errors li {
+            margin-left: 20px;
+            margin-bottom: 5px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+    <h1>✏️ Edit Expense</h1>
+
+    <p class="subtitle">
+        Update the expense details below.
+    </p>
+
+
+    {% if errors %}
+
+        <div class="errors">
+
+            <ul>
+
+                {% for error in errors %}
+
+                    <li>{{ error }}</li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+    {% endif %}
+
+
+    <form method="POST">
+
+        <label for="amount">
+            Amount
+        </label>
+
+        <input
+            type="number"
+            id="amount"
+            name="amount"
+            step="0.01"
+            min="0.01"
+            value="{{ amount if amount is defined else expense['amount'] }}"
+            required
+        >
+
+
+        <label for="category">
+            Category
+        </label>
+
+        <input
+            type="text"
+            id="category"
+            name="category"
+            value="{{ category if category is defined else expense['category'] }}"
+            required
+        >
+
+
+        <label for="description">
+            Description
+        </label>
+
+        <input
+            type="text"
+            id="description"
+            name="description"
+            value="{{ description if description is defined else expense['description'] }}"
+        >
+
+
+        <label for="date">
+            Date
+        </label>
+
+        <input
+            type="text"
+            id="date"
+            name="date"
+            value="{{ date if date is defined else expense['date'] }}"
+            placeholder="DD-MM-YYYY"
+            required
+        >
+
+
+        <button type="submit">
+            💾 Update Expense
+        </button>
+
+    </form>
+
+
+    <a
+        class="back"
+        href="/"
+    >
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Expense Tracker</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 18px;
+            background: #222;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-top: 10px;
+        }
+
+        .button:hover {
+            opacity: 0.85;
+        }
+
+        .flash-message {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .flash-message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .flash-message.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            max-width: 650px;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .search-form button {
+            padding: 12px 18px;
+            border: none;
+            background: #222;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .clear-button {
+            padding: 12px 18px;
+            background: #eee;
+            color: #222;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+        }
+
+        .budget-box {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .budget-item {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 10px;
+        }
+
+        .budget-item span {
+            display: block;
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .budget-item strong {
+            font-size: 22px;
+        }
+
+        .progress {
+            width: 100%;
+            height: 18px;
+            background: #eee;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #222;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.danger {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status.neutral {
+            background: #eee;
+            color: #555;
+        }
+
+        .insights {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .insight {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .insight h3 {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .insight strong {
+            font-size: 20px;
+        }
+
+        .category {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .chart-container {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        .action-link {
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .empty {
+            color: #777;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 900px) {
+
+            .cards,
+            .budget-box,
+            .insights {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .cards,
+            .budget-box,
+            .insights {
+                grid-template-columns: 1fr;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 8px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+    <!-- FLASH MESSAGES -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>💰 Smart Expense Tracker</h1>
+
+        <p>
+            Manage, analyze and control your daily expenses.
+        </p>
+
+        <a href="/add" class="button">
+            ➕ Add Expense
+        </a>
+
+        <a href="/budget" class="button">
+            💰 Budget Planner
+        </a>
+
+
+        <!-- SEARCH -->
+
+        <form method="GET"
+              action="/"
+              class="search-form">
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Search category or description..."
+                value="{{ search }}"
+            >
+
+            <button type="submit">
+                🔎 Search
+            </button>
+
+            <a href="/" class="clear-button">
+                Clear
+            </a>
+
+        </form>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div class="cards">
+
+        <div class="card">
+
+            <h3>💰 Total Spending</h3>
+
+            <p>
+                ₹{{ "%.2f"|format(total) }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>🧾 Number of Expenses</h3>
+
+            <p>
+                {{ count }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>📊 Average Expense</h3>
+
+            <p>
+                ₹{{ "%.2f"|format(average) }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>🔥 Highest Expense</h3>
+
+            <p>
+                ₹{{ "%.2f"|format(highest) }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- BUDGET ALERT -->
+
+    <div class="section">
+
+        <h2>
+            🚨 Budget Alert — {{ current_month_name }}
+        </h2>
+
+        <div class="budget-box">
+
+            <div class="budget-item">
+
+                <span>Monthly Budget</span>
+
+                <strong>
+                    ₹{{ "%.2f"|format(budget_amount) }}
+                </strong>
+
+            </div>
+
+
+            <div class="budget-item">
+
+                <span>Spent This Month</span>
+
+                <strong>
+                    ₹{{ "%.2f"|format(current_month_spending) }}
+                </strong>
+
+            </div>
+
+
+            <div class="budget-item">
+
+                <span>Remaining</span>
+
+                <strong>
+                    ₹{{ "%.2f"|format(remaining_budget) }}
+                </strong>
+
+            </div>
+
+
+            <div class="budget-item">
+
+                <span>Used</span>
+
+                <strong>
+                    {{ "%.1f"|format(budget_percentage) }}%
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="progress">
+
+            <div
+                class="progress-bar"
+                style="width: {{ progress_percentage }}%;"
+            ></div>
+
+        </div>
+
+
+        <div class="status {{ budget_status_class }}">
+
+            {{ budget_status }}
+
+        </div>
+
+    </div>
+
+
+    <!-- EXPENSE INSIGHTS -->
+
+    <div class="section">
+
+        <h2>💡 Expense Insights</h2>
+
+        <div class="insights">
+
+
+            <div class="insight">
+
+                <h3>🏆 Highest Spending Category</h3>
+
+                <strong>
+                    {{ highest_category }}
+                </strong>
+
+                <p>
+                    ₹{{ "%.2f"|format(highest_category_amount) }}
+                </p>
+
+            </div>
+
+
+            <div class="insight">
+
+                <h3>📈 Category Share</h3>
+
+                <strong>
+                    {{ "%.1f"|format(highest_category_percentage) }}%
+                </strong>
+
+                <p>
+                    of total spending
+                </p>
+
+            </div>
+
+
+            <div class="insight">
+
+                <h3>📅 Average Daily Expense</h3>
+
+                <strong>
+                    ₹{{ "%.2f"|format(average_daily) }}
+                </strong>
+
+                <p>
+                    based on spending days
+                </p>
+
+            </div>
+
+
+            <div class="insight">
+
+                <h3>🧾 Biggest Transaction</h3>
+
+                {% if biggest_expense %}
+
+                    <strong>
+                        ₹{{ "%.2f"|format(biggest_expense["amount"]) }}
+                    </strong>
+
+                    <p>
+                        {{ biggest_expense["category"] }}
+                    </p>
+
+                {% else %}
+
+                    <strong>
+                        No data
+                    </strong>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CURRENT MONTH OVERVIEW -->
+
+    <div class="section">
+
+        <h2>📅 Current Month Overview</h2>
+
+        <p>
+            You have made
+            <strong>{{ current_month_count }}</strong>
+            expense transaction(s) this month.
+        </p>
+
+        {% if budget_amount > 0 %}
+
+            {% if remaining_budget >= 0 %}
+
+                <p style="margin-top:10px;">
+
+                    ✅ You still have
+
+                    <strong>
+                        ₹{{ "%.2f"|format(remaining_budget) }}
+                    </strong>
+
+                    available in your budget.
+
+                </p>
+
+            {% else %}
+
+                <p style="margin-top:10px;">
+
+                    ⚠️ You have exceeded your monthly budget by
+
+                    <strong>
+                        ₹{{ "%.2f"|format(remaining_budget|abs) }}
+                    </strong>.
+
+                </p>
+
+            {% endif %}
+
+        {% else %}
+
+            <p style="margin-top:10px;">
+
+                ℹ️ Set a monthly budget to activate budget alerts.
+
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- CATEGORY SUMMARY -->
+
+    <div class="section">
+
+        <h2>📊 Category Summary</h2>
+
+        {% if category_data %}
+
+            {% for category in category_data %}
+
+                <div class="category">
+
+                    <span>
+                        {{ category["category"] }}
+                    </span>
+
+                    <strong>
+                        ₹{{ "%.2f"|format(category["total"]) }}
+                    </strong>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="empty">
+                No expenses available.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- CATEGORY CHART -->
+
+    <div class="section">
+
+        <h2>📈 Spending by Category</h2>
+
+        <div class="chart-container">
+
+            <canvas id="expenseChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- MONTHLY CHART -->
+
+    <div class="section">
+
+        <h2>📅 Monthly Spending</h2>
+
+        <div class="chart-container">
+
+            <canvas id="monthlyChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+    <!-- EXPENSE TABLE -->
+
+    <div class="section">
+
+        <h2>🧾 Recent Expenses</h2>
+
+        {% if expenses %}
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Amount</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for expense in expenses %}
+
+                        <tr>
+
+                            <td>
+                                {{ expense["id"] }}
+                            </td>
+
+                            <td>
+                                ₹{{ "%.2f"|format(expense["amount"]) }}
+                            </td>
+
+                            <td>
+                                {{ expense["category"] }}
+                            </td>
+
+                            <td>
+                                {{ expense["description"] }}
+                            </td>
+
+                            <td>
+                                {{ expense["date"] }}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    class="action-link"
+                                    href="/edit/{{ expense['id'] }}"
+                                >
+                                    ✏️ Edit
+                                </a>
+
+                                <a
+                                    class="action-link"
+                                    href="/delete/{{ expense['id'] }}"
+                                    onclick="return confirm('Are you sure you want to delete this expense?');"
+                                >
+                                    🗑️ Delete
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p class="empty">
+                No expenses found.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+</div>
+
+
+<!-- CATEGORY CHART -->
+
+<script>
+
+const categoryLabels = [
+
+    {% for category in category_data %}
+
+        {{ category["category"]|tojson }}
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
+
+
+const categoryAmounts = [
+
+    {% for category in category_data %}
+
+        {{ category["total"] }}
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
+
+
+if (categoryLabels.length > 0) {
+
+    new Chart(
+        document.getElementById("expenseChart"),
+        {
+            type: "doughnut",
+
+            data: {
+
+                labels: categoryLabels,
+
+                datasets: [
+                    {
+                        label: "Expenses",
+                        data: categoryAmounts
+                    }
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                plugins: {
+
+                    legend: {
+                        position: "bottom"
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+</script>
+
+
+<!-- MONTHLY CHART -->
+
+<script>
+
+const monthlyLabels = [
+
+    {% for month in monthly_data %}
+
+        {{ (month["month"] ~ "/" ~ month["year"])|tojson }}
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
+
+
+const monthlyAmounts = [
+
+    {% for month in monthly_data %}
+
+        {{ month["total"] }}
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
+
+
+if (monthlyLabels.length > 0) {
+
+    new Chart(
+        document.getElementById("monthlyChart"),
+        {
+            type: "bar",
+
+            data: {
+
+                labels: monthlyLabels,
+
+                datasets: [
+                    {
+                        label: "Monthly Spending",
+                        data: monthlyAmounts
+                    }
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                scales: {
+
+                    y: {
+                        beginAtZero: true
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+</script>
+
+
+</body>
+
+</html>
